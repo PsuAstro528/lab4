@@ -56,7 +56,7 @@ The true anomaly ($T$) is related to the eccentric anomaly ($E$) by
 ```math
 \tan\left(\frac{T}{2}\right) = \sqrt{\frac{1+e}{1-e}} \tan\left(\frac{E}{2}\right).
 ```
-The eccentric anomaly is related to the mean anomaly by [Kepler's equation](https://en.wikipedia.org/wiki/Kepler%27s_equation).  We will reuse the code to compute the eccentric anomaly from a [previous exercise](https://psuastro528.github.io/lab2-start/ex3.html).  It and the code to compute the true anomaly from the eccentric anomaly and eccentricitiy are at the bottom of the notebook.
+The eccentric anomaly is related to the mean anomaly by [Kepler's equation](https://en.wikipedia.org/wiki/Kepler%27s_equation).  We will reuse the code to compute the eccentric anomaly from a [previous exercise](https://psuastro528.github.io/lab2/ex3.html).  It and the code to compute the true anomaly from the eccentric anomaly and eccentricitiy are at the bottom of the notebook.
 
 The mean anomaly increases linearly in time.
 ```math
@@ -122,7 +122,7 @@ end
 
 # ╔═╡ b9efe114-717e-46c8-8225-a4ab4d3df439
 md"""
-Having learned the importance of not having a large time offset in [lab 1's exercise 2](https://psuastro528.github.io/lab1-start/ex2.html), we will specify a reference epoch near many of our observations.   
+Having learned the importance of not having a large time offset in [lab 1's exercise 2](https://psuastro528.github.io/lab1/ex2.html), we will specify a reference epoch near many of our observations.   
 """
 
 # ╔═╡ 2844cd3a-9ed1-47da-ab59-ea33575b4991
