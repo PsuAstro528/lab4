@@ -806,7 +806,7 @@ density(chains_with_guess)
 	
     # Calculate the true velocity given model parameters
 	# TODO: Update to include an acceleration
-	rv_true = calc_rv_keplerian_plus_const.(t, P,K,e,ω,M0,C)  
+	rv_true = calc_rv_keplerian_plus_const.(t, P,K,e,ω,M0,C)
 	
 	# Specify model likelihood for the observations
 	σ_eff = sqrt.(σ_obs.^2 .+ σ_j.^2)
@@ -1068,7 +1068,7 @@ begin
 	jitter_for_periodogram = 3.0
 	num_period_for_periodogram = 10_000
 	periodogram_results = calc_periodogram(df.bjd.-bjd_ref,df.rv,
-								PDiagMat(df.σ_rv.+jitter_for_periodogram^2), 
+								PDiagMat(df.σ_rv.^2 .+jitter_for_periodogram^2), 
 									num_periods=num_period_for_periodogram)
 end
 
@@ -3784,7 +3784,7 @@ version = "1.9.2+0"
 # ╠═5e5d4560-fa1e-48f6-abe4-3b1221d44609
 # ╟─dd40a3cf-76d3-4eb9-8027-274a065c762c
 # ╟─940f4f42-7bc3-48d4-b9f4-22f9b94c345d
-# ╟─40923752-9215-45c9-a444-5a519b64df97
+# ╠═40923752-9215-45c9-a444-5a519b64df97
 # ╠═dfe71f99-5977-46e5-957d-10a32ce8340e
 # ╠═6fd32120-4df1-4f2d-bb6f-c348a6999ad5
 # ╠═16802453-5fdf-4e1f-8e99-51d1fcaa248a

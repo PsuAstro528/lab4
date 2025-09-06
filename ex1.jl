@@ -24,6 +24,7 @@ begin
 	using Optim
 	using ForwardDiff,ReverseDiff
 	using Distributions
+	using StaticArrays
 	using BenchmarkTools
 	using Random
 	using Printf
@@ -239,7 +240,7 @@ When comparing performance of algorithms, it's also important to consider the ac
 
 # ╔═╡ 74b79479-fd13-416c-a6bd-d9967624a5b4
 md"""
-1f.  What could explain why one algorithm doesn't appear take longer when applied to problems of higher dimensions?  What do you think would happen if you adjusted the parameters passed to `optimize`, so that the different algorithms acheived a similar accuracy?
+1f.  What could explain why one algorithm doesn't appear to take longer when applied to problems of higher dimensions?  What do you think would happen if you adjusted the parameters passed to `optimize`, so that the different algorithms acheived a similar accuracy?
 """
 
 # ╔═╡ d9b81c82-4939-4b19-b00e-c26f0ef87aa0
@@ -258,7 +259,7 @@ The previous example was a fairly easy optimization problem.  Next, we'll explor
 
 # ╔═╡ ba8665f6-883d-485d-86c1-7f42fd1df5ed
 begin  # Set parameters for warped Gaussian
-	min_prewarp_banana_2d = [0.0,4.0] 
+	min_prewarp_banana_2d = @SVector [0.0,4.0] 
 	banana_a = 2.0
 	banana_b = 0.2
 end;
@@ -316,11 +317,11 @@ function banana_highd(x)
 	@assert length(x) >=2
 	a = banana_a::Float64   # Type annotations to avoid performance hit
 	b = banana_b::Float64   # from using a global variable inside function
-	mu = min_prewarp_banana_2d::Vector{Float64}
+	mu = min_prewarp_banana_2d # mu is only passed to another function, so no need to type annotate it
 	dist_2d = MvNormal(mu,PDMat([1.0 0.5; 0.5 1.0]))
 	target = zero(eltype(x))
 	for i in 1:2:(length(x)-1)
-		y = [ x[i]/a, x[i+1]*a + a*b*(x[i]^2+a^2) ]
+		y = @SVector [ x[i]/a, x[i+1]*a + a*b*(x[i]^2+a^2) ]
 		target += -logpdf(dist_2d,y)
 	end
 	if mod(length(x),2) == 1
@@ -433,7 +434,7 @@ begin
 end
 
 # ╔═╡ a2365327-5843-43e6-9184-b94072f69bac
-dimen_to_benchmark_banana = [2,4,6,8,10,12,16]
+dimen_to_benchmark_banana = [2,4,6,8,10,12] #,16]
 
 # ╔═╡ 28e3a97b-7208-48a2-97f3-d1003eb89c58
 if run_benchmarks  # Benchmark different optimization algorithsm on warped Gaussian density
@@ -519,7 +520,7 @@ begin
 	end
 	
 	# Constructor 
-	function GaussianTarget(μ::Vector{Float64}, Σ::AbstractPDMat{Float64})
+	function GaussianTarget(μ::AbstractVector{Float64}, Σ::AbstractPDMat{Float64})
 		@assert length(μ) == size(Σ,1) ==  size(Σ,2)
 		dist = MvNormal(μ,Σ)
 		GaussianTarget(dist) 
@@ -540,15 +541,16 @@ covar(target::GaussianTarget) = target.dist.Σ
 # ╔═╡ ce4c9111-5949-4d92-ba71-10ae0afa8dea
 function make_target(num_dim::Integer)
 	@assert 1 <= num_dim <= 1000
-	target = GaussianTarget(randn(num_dim), PDMat(rand(InverseWishart(num_dim,diagm(ones(num_dim)))) ) )
+	target = GaussianTarget( randn(num_dim),
+					PDMat(rand(InverseWishart(num_dim,diagm(ones(num_dim))))) ) 
 end
 
 # ╔═╡ cdfa9982-be89-4949-abb2-363de63bdf89
 begin
 	draw_new_target_gauss_2d             # Trigger new density with click
 	gaussian_target_2d = make_target(2)  # If you're curious, you can find the definition of make_target at the bottom of he notebook.
-	init_guess_gauss_2d = 6 .* randn(2)  
-end;
+	init_guess_gauss_2d = 6 .* randn(2) 
+end
 
 # ╔═╡ 98c67125-0e38-4a3a-8f3f-b99b6bb16682
 let
@@ -645,7 +647,7 @@ if @isdefined gaussian_target_2d
 	cost_one_eval = @belapsed gaussian_target_2d(init_guess_gauss_2d) samples=20
 	cost_one_eval = (1+2)*cost_one_eval
 	cost_num_grad_str = @sprintf "%1.3g" cost_one_eval
-end
+end;
 
 # ╔═╡ 9b02c64d-bed9-4d4c-bdd8-67648dd7bfae
 if @isdefined cost_num_grad_str
@@ -661,10 +663,14 @@ For comparison, estimating the gradient numerically would require evaluating the
 """
 end
 
+# ╔═╡ efd75423-a82a-4256-bdb9-57635472edea
+ReverseDiff.gradient(gaussian_target_2d, init_guess_gauss_2d)
+
 # ╔═╡ cb9de107-7a33-4a59-8296-d373024e81b6
 if !ismissing(response_1b)
 	result_rev2 = DiffResults.GradientResult(init_guess_gauss_2d)
-	@benchmark ReverseDiff.gradient!($result_rev2,$gaussian_target_2d,$init_guess_gauss_2d)  samples=20
+	@benchmark ReverseDiff.gradient!(result_rev2,$gaussian_target_2d,$init_guess_gauss_2d)  samples=20
+	ReverseDiff.gradient!(result_rev2,gaussian_target_2d,init_guess_gauss_2d)  
 end
 
 # ╔═╡ 64c63760-f2d4-482a-8343-7a8d982b0844
@@ -745,22 +751,22 @@ end
 md"## Banana target function"
 
 # ╔═╡ 979a17de-3a33-44a4-85bb-b7e663b46dfb
-function banana_2d(x::Vector)
+function banana_2d(x::AbstractVector)
 	@assert length(x) == 2 
 	a = banana_a::Float64     # We create local copies of global variables 
 	b = banana_b::Float64     # with fixed type to improve performance.
-	mu = min_prewarp_banana_2d::Vector{Float64}
-	dist = MvNormal(mu,PDMat([1.0 0.5; 0.5 1.0]))
+	mu = min_prewarp_banana_2d
+	dist = MvNormal(mu,PDMat( [1.0 0.5; 0.5 1.0] ))
 	y = [ x[1]/a, x[2]*a + a*b*(x[1]^2+a^2) ]
 	-logpdf(dist,y)
 end
 
 # ╔═╡ 691dbb96-1348-4a63-aa2c-36c577a77f93
 "Compute location of location of minimum for 2D banana"
-function compute_loc_min_banana_2d(a, b, min_prewarp::Vector)
+function compute_loc_min_banana_2d(a, b, min_prewarp::AbstractVector)
 	true_min_postwarp_banana_x = min_prewarp[1]*a 
 	true_min_postwarp_banana_y = (min_prewarp[2]-a*b*(min_prewarp[1]^2+a^2))/a
-	true_min_postwarp_banana_2d = [true_min_postwarp_banana_x, true_min_postwarp_banana_y]
+	true_min_postwarp_banana_2d = @SVector [true_min_postwarp_banana_x, true_min_postwarp_banana_y]
 end;
 
 # ╔═╡ 7d188cda-70c8-44b7-9773-911e5f92bb35
@@ -829,6 +835,21 @@ PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+
+[compat]
+BenchmarkTools = "~1.6.0"
+Distributions = "~0.25.120"
+ForwardDiff = "~1.0.1"
+LaTeXStrings = "~1.4.0"
+Optim = "~1.13.2"
+PDMats = "~0.11.35"
+Plots = "~1.40.19"
+PlutoTeachingTools = "~0.4.5"
+PlutoTest = "~0.2.2"
+PlutoUI = "~0.7.71"
+ReverseDiff = "~1.16.1"
+StaticArrays = "~1.9.15"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -837,7 +858,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.2"
 manifest_format = "2.0"
-project_hash = "8b699856838e39a3d03e9813d1ab51ebba4f27fd"
+project_hash = "e43ee39f565907479486d94df3476995c9fa405b"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "60665b326b75db6517939d0e1875850bc4a54368"
@@ -1939,9 +1960,9 @@ version = "1.0.3"
 
 [[deps.StaticArrays]]
 deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
-git-tree-sha1 = "cbea8a6bd7bed51b1619658dec70035e07b8502f"
+git-tree-sha1 = "b8693004b385c842357406e3af647701fe783f98"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.9.14"
+version = "1.9.15"
 weakdeps = ["ChainRulesCore", "Statistics"]
 
     [deps.StaticArrays.extensions]
@@ -2405,14 +2426,15 @@ version = "1.9.2+0"
 # ╟─54319c3e-fed4-4184-81ce-767f9a527c1b
 # ╠═756389e5-662b-4384-a94e-ed05c8c286f5
 # ╟─b3d5cf28-64bb-4e62-b72b-e6747a668f37
-# ╠═7e751550-75f9-4b2d-9331-6d8ae09ff397
+# ╟─7e751550-75f9-4b2d-9331-6d8ae09ff397
 # ╟─e5140102-36e7-450f-ac6d-7f32c0668b98
 # ╟─9b02c64d-bed9-4d4c-bdd8-67648dd7bfae
 # ╟─61704586-c69f-473f-bfed-cff98767b729
 # ╠═13dbca62-fd43-4a8e-a8e7-25e8672b8a60
 # ╟─f3cedf20-eda8-4bfe-a8fa-497e1cfe5dd4
 # ╟─980e8ae8-7b6c-43cd-a217-b9de54731b6f
-# ╠═cb9de107-7a33-4a59-8296-d373024e81b6
+# ╠═efd75423-a82a-4256-bdb9-57635472edea
+# ╟─cb9de107-7a33-4a59-8296-d373024e81b6
 # ╠═64c63760-f2d4-482a-8343-7a8d982b0844
 # ╠═cf37e7b2-6b3e-44aa-9665-723019f6a95c
 # ╟─f318374c-1938-4efd-b540-f3d2afae2c70
