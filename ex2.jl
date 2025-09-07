@@ -37,7 +37,17 @@ md"""# Astro 528, Lab 4, Exercise 2
 """
 
 # ╔═╡ 7c12a4d6-1bf6-41bb-9528-9fe11ff8fb70
-md"Traditionally, programmers provide explicit instructions for what steps the program should perform (known as the [imperative programming](https://en.wikipedia.org/wiki/Imperative_programming) model).  There are alternatives.  For example, [probabilistic programming languages](https://en.wikipedia.org/wiki/Probabilistic_programming) allow programmers to specify target probability distributions to be computed (or sampled from), without specifying how to perform inference with that target distribution.  In this exercise, we'll explore how to use the [Turing.jl](https://turing.ml/stable/) probabilistic programming language.  Turing is implemented entirely in Julia and is composable, so that one can perform inference with complex Julia models.  Here we'll use a relatively simple model implemented entirely in this notebook."
+md"""Traditionally, programmers provide explicit instructions for what steps the program should perform (known as the [imperative programming](https://en.wikipedia.org/wiki/Imperative_programming) model).  
+There are alternatives.  
+For example, [probabilistic programming languages](https://en.wikipedia.org/wiki/Probabilistic_programming) allow programmers to specify target probability distributions to be computed (or sampled from), without specifying how to perform inference with that target distribution.  
+In this exercise, we'll explore how to use the [Turing.jl](https://turing.ml/stable/) probabilistic programming language.  
+Turing is implemented entirely in Julia and is composable, so that one can perform inference with complex Julia models.  
+Here we'll use a relatively simple model implemented entirely in this notebook.
+"""
+
+# ╔═╡ dd2d0bd4-235a-489e-9798-1993e0b4bee7
+protip(md"""There are several other PPLs such as [RxInfer.jl](https://rxinfer.com/), [Stan](https://mc-stan.org/), and [Nimble](https://r-nimble.org/), and [PyMC](https://www.pymc.io/).  The code for simple models is often very similar.  However, under the hood there can be considerable differences.  Diffent PPLs have different restrictions on what kind of code can be called in the model and what kinds of models they are an efficient choice.  Some PPLs like Turing.jl are based on sampling methods that can work well with complex models, while others like RxInfer.jl are designed to exploit [conjugate distributions](https://en.wikipedia.org/wiki/Conjugate_prior#Table_of_conjugate_distributions) to work extremely fast for some models, but then break, make additional approximations or become much slower for models that don't use conjugate distributions.
+""", invite="Other PPLs")
 
 # ╔═╡ 73021015-4357-4196-868c-e9564de02ede
 md"# Example Problem"
@@ -46,6 +56,8 @@ md"# Example Problem"
 md"""
 ## Physical Model
 We aim to infer the orbital properties of an exoplanet orbiting a star based on radial velocity measurements.  
+The details of the physical model aren't important for the lesson, but are provided to help students see that we're able to implement a real physical model with non-linear relationships and an itterative solver for a transcendental equation, not just some simple toy problems.  
+
 We will approximate the motion of the star and planet as a Keplerian orbit.  In this approximation, the radial velocity perturbation ($Δrv$) due to the planet ($b$) is given by 
 ```math
 \mathrm{Δrv}_b(t) = \frac{K}{\sqrt{1-e^2}} \left[ \cos(ω+T(t,e)) + e \cos(ω) \right],
@@ -210,7 +222,7 @@ Below, we'll visualize the results for one important parameter by ploting an est
 """
 
 # ╔═╡ a8e547c5-c2b5-4058-a1e2-35397d7e8112
-md"2a.  Based on the summary statistics and/or estimated marginal posterior density for the orbital period, did the different Markov chains provide qualitatively similar results for the marginal distribution of the orbital period?"
+md"**Q2a:**  Based on the summary statistics and/or estimated marginal posterior density for the orbital period, did the different Markov chains provide qualitatively similar results for the marginal distribution of the orbital period?"
 
 # ╔═╡ 80d076a8-7fb1-4dc7-8e3b-7579db30b038
 response_2a = missing
@@ -239,7 +251,7 @@ t_plt = range(first(df.bjd)-bjd_ref-10, stop=last(df.bjd)-bjd_ref+10, length=400
 @bind draw_new_samples_from_posterior_with_init_from_prior Button("Draw new samples")
 
 # ╔═╡ 0d83ebc9-ecb3-4a9d-869b-351b28d5e962
-md"2b.  Are any/some/most/all of the predicted RV curves good fits to the data?"
+md"**Q2b:**  Are any/some/most/all of the predicted RV curves good fits to the data?"
 
 # ╔═╡ cc2dbf2f-27a4-4cd6-81e5-4a9f5a3bc488
 response_2b = missing
@@ -310,7 +322,7 @@ Again, we'll check the summary of posterior samples for the  model parameters fo
 md"We can also compare the marginal posterior density estimated from each Markov chain separately for each of the model parameters." 
 
 # ╔═╡ 7f8394ee-e6a2-4e4f-84b2-10a043b3da35
-md"2c.  Based on the summary statistics and estimated marginal posterior densities, did the different Markov chains provide qualitatively similar results for the marginal distributions of the orbital period and other model parameters?"
+md"**Q2c:**  Based on the summary statistics and estimated marginal posterior densities, did the different Markov chains provide qualitatively similar results for the marginal distributions of the orbital period and other model parameters?"
 
 # ╔═╡ f2ff4d87-db0a-4418-a548-a9f3f04f93cd
 response_2c = missing
@@ -331,7 +343,7 @@ md"Below, we'll draw several random samples from the posterior samples we comput
 @bind draw_new_samples_from_posterior_with_guess Button("Draw new samples")
 
 # ╔═╡ 95844ef7-8730-469f-b69b-d7bbe5fc2607
-md"2d.  Are any/some/most/all of the predicted RV curves good fits to the data? "
+md"**Q2d:**  Are any/some/most/all of the predicted RV curves good fits to the data? "
 
 # ╔═╡ 3699772e-27d4-402e-a669-00f5b22f2ed5
 response_2d = missing
@@ -356,8 +368,8 @@ and the observations can be modeled as the linear sum of the perturbations due t
 \mathrm{rv(t)} = \mathrm{Δrv}_b(t) + \mathrm{Δrv}_A(t) + C.
 ```
 
-2e. Update the model below to include an extra model parameter ($a$) for the acceleration due to star A and to include that term in the true velocities.
-You'll need to choose a reasonable prior distribution for $a$.    
+**Q2e:** Update the model below to include an extra model parameter ($a$) for the acceleration due to star A and to include that term in the true velocities.
+You'll need to choose a plausible prior distribution for $a$.    
 """
 
 # ╔═╡ 5084b413-1211-490a-89d3-1cc782f1741e
@@ -393,7 +405,7 @@ Let's inspect summary statistics and marginal distributions as we did for the pr
 
 # ╔═╡ 21fdeaff-0c91-481c-bd8e-1dba27e275a6
 md"""
-2f.  Based on the the above summary statistics and estimated marginal posterior densities from each of the Markov chains, do you see any reason to be suspicious of the results from the new analysis using the model with a long-term acceleration?
+**Q2f:**  Based on the the above summary statistics and estimated marginal posterior densities from each of the Markov chains, do you see any reason to be suspicious of the results from the new analysis using the model with a long-term acceleration?
 """
 
 # ╔═╡ a4be55ab-3e8e-423c-b3bc-3f3b88c5d2b7
@@ -424,7 +436,7 @@ Finally, we'll compare our estimates of the marginal posterior distributions com
 
 # ╔═╡ 9fd50ada-702f-4ca4-aab2-abfa0f4f597c
 md"""
-2g.  Did the inferences for the orbital period or velocity amplitude change significantly depending on which model was assumed?  
+**Q2g:**  Did the inferences for the orbital period or velocity amplitude change significantly depending on which model was assumed?  
 """
 
 # ╔═╡ b3f9c7b7-5ed5-47d7-811c-6f4a313de24b
@@ -435,7 +447,7 @@ display_msg_if_fail(check_type_isa(:response_2g,response_2g,[AbstractString,Mark
 
 # ╔═╡ e5d0b1cc-ea7b-42a4-bfcd-684337b0f98b
 md"""
-2h.  Describe how a probabilistic programming language could be a useful tool for you, whether that be for your class project or a current/past/future research project.
+**Q2h:**  Describe how a probabilistic programming language could be a useful tool for you, whether that be for your class project or a current/past/future research project.
 """
 
 # ╔═╡ 5e5d4560-fa1e-48f6-abe4-3b1221d44609
@@ -476,7 +488,6 @@ Based on "The Solution of Kepler's Equations - Part Three"
 Danby, J. M. A. (1987) Journal: Celestial Mechanics, Volume 40, Issue 3-4, pp. 303-312 (1987CeMec..40..303D)
 """
 function ecc_anom_init_guess_danby(M::Real, ecc::Real)
-	#@assert -2π<= M <= 2π
 	@assert 0 <= ecc <= 1.0
     M = mod2pi(M)
 	if  M < zero(M)
@@ -495,14 +506,15 @@ Based on "An Improved Algorithm due to Laguerre for the Solution of Kepler's Equ
    Conway, B. A.  (1986) Celestial Mechanics, Volume 39, Issue 2, pp.199-211 (1986CeMec..39..199C)
 """
 function update_ecc_anom_laguerre(E::Real, M::Real, ecc::Real)
-  (es, ec) = ecc .* sincos(E)
-  F = (E-es)-M
-  Fp = one(M)-ec
-  Fpp = es
-  n = 5
-  root = sqrt(abs((n-1)*((n-1)*Fp*Fp-n*F*Fpp)))
-  denom = Fp>zero(E) ? Fp+root : Fp-root
-  return E-n*F/denom
+   @assert 0 <= ecc <= 1.0
+   (es, ec) = ecc .* sincos(E)
+   F = (E-es)-M
+   Fp = one(M)-ec
+   Fpp = es
+   n = 5
+   root = sqrt(abs((n-1)*((n-1)*Fp*Fp-n*F*Fpp)))
+   denom = Fp>zero(E) ? Fp+root : Fp-root
+   return E-n*F/denom
 end;
 
 # ╔═╡ 9c50e9eb-39a0-441a-b03f-6358caa2d0e9
@@ -536,7 +548,7 @@ begin
 	    return E
 	end
 	
-	function calc_ecc_anom(param::Vector; tol::Real = 1.0e-8)
+	function calc_ecc_anom(param::AbstractVector; tol::Real = 1.0e-8)
 		@assert length(param) == 2
 		calc_ecc_anom(param[1], param[2], tol=tol)
 	end;
@@ -549,6 +561,7 @@ md"""
 """
 
 # ╔═╡ 1492e4af-440d-4926-a4b5-b33da77dbee2
+"Calculate true anomaly from eccentric anomaly and eccentricity"
 function calc_true_anom(ecc_anom::Real, e::Real)
 	true_anom = 2*atan(sqrt((1+e)/(1-e))*tan(ecc_anom/2))
 end
@@ -557,7 +570,7 @@ end
 begin 
 	""" Calculate RV from t, P, K, e, ω and M0	"""
 	function calc_rv_keplerian end 
-	calc_rv_keplerian(t, p::Vector) = calc_rv_keplerian(t, p...)
+	calc_rv_keplerian(t, p::AbstractVector) = calc_rv_keplerian(t, p...)
 	function calc_rv_keplerian(t, P,K,e,ω,M0) 
 		mean_anom = t*2π/P-M0
 		ecc_anom = calc_ecc_anom(mean_anom,e)
@@ -570,7 +583,7 @@ end
 begin 
 	""" Calculate RV from t, P, K, e, ω, M0	and C   """
 	function calc_rv_keplerian_plus_const end 
-	calc_rv_keplerian_plus_const(t, p::Vector) = calc_rv_keplerian_plus_const(t, p...)
+	calc_rv_keplerian_plus_const(t, p::AbstractVector) = calc_rv_keplerian_plus_const(t, p...)
 	function calc_rv_keplerian_plus_const(t, P,K,e,ω,M0,C) 
 		calc_rv_keplerian(t, P,K,e,ω,M0) + C
 	end
@@ -588,8 +601,18 @@ if  @isdefined param_guess
 	title!("RV Predictions using above guess for model parameters") 
 end
 
+# ╔═╡ bdac967d-82e0-4d87-82f7-c771896e1797
+begin 
+	""" Calculate RV from t, P, K, e, ω, M0, C and a	"""
+	function calc_rv_keplerian_plus_acc end 
+	calc_rv_keplerian_plus_acc(t, p::AbstractVector) = calc_rv_keplerian_plus_acc(t, p...)
+	function calc_rv_keplerian_plus_acc(t, P,K,e,ω,M0,C,a) 
+		calc_rv_keplerian(t, P,K,e,ω,M0) + C + a*t
+	end
+end
+
 # ╔═╡ 7330040e-1988-4410-b625-74f71f031d43
-function simulate_rvs_from_model_v1(chain, times; sample::Integer, chain_id::Integer=1)
+function simulate_rvs_from_model_v1(chain::Chains, times::AbstractVector{<:Real}; sample::Integer, chain_id::Integer=1)
 	@assert 1<=sample<=size(chain,1)
 	@assert 1<=chain_id<=size(chain,3)
 	# Extract parameters from chain
@@ -604,19 +627,8 @@ function simulate_rvs_from_model_v1(chain, times; sample::Integer, chain_id::Int
 	rvs = calc_rv_keplerian_plus_const.(times, P,K,e,ω,M0,C)
 end
 
-# ╔═╡ bdac967d-82e0-4d87-82f7-c771896e1797
-begin 
-	""" Calculate RV from t, P, K, e, ω, M0, C and a	"""
-	function calc_rv_keplerian_plus_acc end 
-	calc_rv_keplerian_plus_acc(t, p::Vector) = calc_rv_keplerian_plus_acc(t, p...)
-	function calc_rv_keplerian_plus_acc(t, P,K,e,ω,M0,C,a) 
-		#t0 = bjd_ref::Float64
-		calc_rv_keplerian(t, P,K,e,ω,M0) + C + a*t
-	end
-end
-
 # ╔═╡ 93adb0c3-5c11-479b-9436-8c7df34bd8fe
-function simulate_rvs_from_model_v2(chain, times; sample::Integer, chain_id::Integer=1)
+function simulate_rvs_from_model_v2(chain::Chains, times::AbstractVector{<:Real}; sample::Integer, chain_id::Integer=1)
 	@assert 1<=sample<=size(chain,1)
 	@assert 1<=chain_id<=size(chain,3)
 	# Extract parameters from chain
@@ -634,7 +646,7 @@ end
 # ╔═╡ f3fb26a5-46b5-4ba3-8a30-9a88d6868a24
 
 function make_logp(
-    model, #::Turing.Model, # TODO: Figure out type in new version
+    model::Function, #::Turing.Model, # TODO: Figure out type in new version
     sampler=Turing.SampleFromPrior(),
     ctx::Turing.DynamicPPL.AbstractContext = DynamicPPL.DefaultContext()
 )
@@ -657,6 +669,10 @@ md"""
 
 # ╔═╡ f1547a42-ee3b-44dc-9147-d9c8ec56f1e3
 begin
+	"""Modified Jeffreys Prior from [Ford & Gregory (2007)](https://ui.adsabs.harvard.edu/#abs/2007ASPC..371..189F/abstract)
+	Takes a scale parameter, and maximum value
+	p(x; σ, x_max) = 1/(1+x/σ) for 0<=x< x_max
+	"""
 	struct ModifiedJeffreysPriorForScale{T1,T2,T3} <: ContinuousUnivariateDistribution where { T1, T2, T3 }
 		scale::T1
 		max::T2
@@ -727,15 +743,18 @@ end;
 	rv_true = calc_rv_keplerian_plus_const.(t, P,K,e,ω,M0,C)  
 	
 	# Specify model likelihood for the observations
-	σ_eff = sqrt.(σ_obs.^2 .+ σ_j.^2)
- 	rv_obs ~ MvNormal(rv_true, σ_eff )
+	σ²_eff = σ_obs.^2 .+ σ_j.^2
+ 	rv_obs ~ MvNormal(rv_true, PDiagMat(σ²_eff) )
 end
 
 # ╔═╡ 776a96af-2c4f-4d6d-9cec-b5db127fed6c
 posterior_1 = rv_kepler_model_v1(df.bjd.-bjd_ref,df.rv,df.σ_rv)
 
 # ╔═╡ 3a838f95-283b-4e06-b54e-400c1ebe94f8
-chains_rand_init = sample(posterior_1, NUTS(), MCMCThreads(), num_steps_per_chain, num_chains, discard_initial=0)
+begin
+	Random.seed!(314159)
+	chains_rand_init = sample(posterior_1, NUTS(), MCMCThreads(), num_steps_per_chain, num_chains, discard_initial=0)
+end
 
 # ╔═╡ 6fad4fd9-b99b-44a9-9c45-6e79ffd4a796
 traceplot(chains_rand_init,:P)
@@ -757,8 +776,8 @@ density(chains_rand_init,:P)
 
 # ╔═╡ 7a664634-c6e3-464b-90a0-6b4cf5015e83
 if go_sample_posterior1 && (P_guess > 0)
+	Random.seed!(271828)
 	chains_with_guess = sample(posterior_1, NUTS(), MCMCThreads(), num_steps_per_chain*2, num_chains; init_params = fill(param_guess, num_chains))
-	#chains_with_guess = sample(posterior_1, NUTS(), num_steps_per_chain*2; init_params = param_guess)
 end;
 
 # ╔═╡ e9465e3f-f340-4cc5-9fa2-454feaa6bd4d
@@ -781,6 +800,9 @@ end
 
 # ╔═╡ 3b7580c9-e04e-4768-ac6f-ddb4462dedd8
 density(chains_with_guess)
+
+# ╔═╡ 82a1e5e3-2ca0-40dc-ae15-d78bf1c54933
+typeof(rv_kepler_model_v1)
 
 # ╔═╡ 3cfc82d6-3390-4572-b5f0-124503e2e9e0
 @model rv_kepler_model_v2(t, rv_obs, σ_obs) = begin
@@ -806,11 +828,11 @@ density(chains_with_guess)
 	
     # Calculate the true velocity given model parameters
 	# TODO: Update to include an acceleration
-	rv_true = calc_rv_keplerian_plus_const.(t, P,K,e,ω,M0,C)
+	rv_true = calc_rv_keplerian_plus_const.(t, P,K,e,ω,M0,C) 
 	
 	# Specify model likelihood for the observations
-	σ_eff = sqrt.(σ_obs.^2 .+ σ_j.^2)
-	rv_obs ~ MvNormal(rv_true, σ_eff )
+	σ²_eff = σ_obs.^2 .+ σ_j.^2
+	rv_obs ~ MvNormal(rv_true, PDiagMat(σ²_eff) )
 end
 
 # ╔═╡ fb2fe33c-3854-435e-b9e5-60e8531fd1f3
@@ -818,6 +840,7 @@ posterior_2 = rv_kepler_model_v2(df.bjd.-bjd_ref,df.rv,df.σ_rv)
 
 # ╔═╡ 8ffb3e78-515b-492d-bd6f-b24eb08e93d6
 if go_sample_posterior2 && (P_guess > 0)
+	Random.seed!(161803)
 	chains_posterior2 = sample(posterior_2, NUTS(), MCMCThreads(), num_steps_per_chain, num_chains; init_params = fill(param_guess_with_acc,num_chains))
 end;
 
@@ -876,6 +899,9 @@ if @isdefined chains_posterior2
 	title!(plt2,"p(ω | data, model w/ acceleration)")
 	plot(plt1, plt2, layout = @layout [a; b] )	
 end
+
+# ╔═╡ 771c47e2-39bb-4588-8436-815ec67e11b2
+supertypes(typeof(chains_posterior2))
 
 # ╔═╡ df503ec7-a9fa-4170-8892-d19e78c32d39
 if  @isdefined chains_rand_init
@@ -993,8 +1019,8 @@ md"### Compute design matrix for periodograms"
 function calc_design_matrix_circ!(result::AM, period, times::AV) where { R1<:Real, AM<:AbstractMatrix{R1}, AV<:AbstractVector{R1} }
 	n = length(times)
 	@assert size(result) == (n, 2)
-	for i in 1:n
-		( result[i,1], result[i,2] ) = sincos(2π/period .* times[i])
+	@simd for i in 1:n
+		@inbounds ( result[i,1], result[i,2] ) = sincos(2π/period .* times[i])
 	end
 	return result
 end
@@ -1011,10 +1037,10 @@ end
 function calc_design_matrix_lowe!(result::AM, period, times::AV) where { R1<:Real, AM<:AbstractMatrix{R1}, AV<:AbstractVector{R1} }
 	n = length(times)
 	@assert size(result) == (n, 4)
-	for i in 1:n
-		arg = 2π/period .* times[i]
-		( result[i,1], result[i,2] ) = sincos(arg)
-		( result[i,3], result[i,4] ) = sincos(2*arg)
+	@simd for i in 1:n
+		@inbounds arg = 2π/period .* times[i]
+		@inbounds ( result[i,1], result[i,2] ) = sincos(arg)
+		@inbounds ( result[i,3], result[i,4] ) = sincos(2*arg)
 	end
 	return result
 end
@@ -1028,7 +1054,11 @@ function calc_design_matrix_lowe(period, times::AV) where { R1<:Real, AV<:Abstra
 end
 
 # ╔═╡ c9687fcb-a1e1-442c-a3c7-f0f60350b059
-md"## Generalized Linear Least Squares Fitting" 
+md"""
+## Generalized Linear Least Squares Fitting
+Fiting a linear model to data is a very common tool.  
+For explanation and derivation, see the [Wikipedia page](https://en.wikipedia.org/wiki/Generalized_least_squares#Method).
+""" 
 
 # ╔═╡ 6f820e58-b61e-43c0-95dc-6d0e936f71c3
 function fit_general_linear_least_squares( design_mat::ADM, covar_mat::APD, obs::AA ) where { ADM<:AbstractMatrix, APD<:AbstractPDMat, AA<:AbstractArray }
@@ -1046,11 +1076,15 @@ end
 # ╔═╡ 1d3d4e92-e21d-43f8-b7f4-5191d8d42821
 function calc_χ²_general_linear_least_squares( design_mat::ADM, covar_mat::APD, obs::AA ) where { ADM<:AbstractMatrix, APD<:AbstractPDMat, AA<:AbstractArray }
 	pred = predict_general_linear_least_squares(design_mat,covar_mat,obs)
-	invquad(covar_mat,obs-pred)
+	invquad(covar_mat,obs.-pred)
 end
 
 # ╔═╡ 42fd9719-26a3-4742-974a-303eb5e810c5
-function calc_periodogram(t, y_obs, covar_mat; period_min::Real = 2.0, period_max::Real = 4*(maximum(t)-minimum(t)), num_periods::Integer = 4000)
+"""`calc_periodogram(t, y_obs, covar_mat)`
+
+Calculates a generalization of the Lomb-Scargle periodogram using input times, observed values, and covariance matrix.
+"""
+function calc_periodogram(t::AbstractVector, y_obs::AbstractVector, covar_mat::AbstractPDMat; period_min::Real = 2.0, period_max::Real = 4*(maximum(t)-minimum(t)), num_periods::Integer = 4000)
 	period_grid =  1.0 ./ range(1.0/period_max, stop=1.0/period_min, length=num_periods) 
 	periodogram = map(p->-0.5*calc_χ²_general_linear_least_squares(calc_design_matrix_circ(p,t),covar_mat,y_obs),period_grid)
 	period_fit = period_grid[argmax(periodogram)]
@@ -1065,7 +1099,7 @@ end
 
 # ╔═╡ 2ccca815-bd26-4f0f-b966-b2ab2fe02d01
 begin
-	jitter_for_periodogram = 3.0
+	jitter_for_periodogram = 1.0
 	num_period_for_periodogram = 10_000
 	periodogram_results = calc_periodogram(df.bjd.-bjd_ref,df.rv,
 								PDiagMat(df.σ_rv.^2 .+jitter_for_periodogram^2), 
@@ -1074,9 +1108,6 @@ end
 
 # ╔═╡ a5be518a-3c7c-424e-b100-ec8967f4ae27
 plot(periodogram_results.period_grid,periodogram_results.periodogram, xscale=:log10, xlabel="Putative Orbital Period (d)", ylabel="-χ²/2", legend=:none)
-
-# ╔═╡ cc51e4bd-896f-479c-8d09-0ce3f07e402c
-
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -3662,6 +3693,7 @@ version = "1.9.2+0"
 # ╔═╡ Cell order:
 # ╟─10709dbc-c38b-4f15-8ea8-772db2acfbb3
 # ╟─7c12a4d6-1bf6-41bb-9528-9fe11ff8fb70
+# ╟─dd2d0bd4-235a-489e-9798-1993e0b4bee7
 # ╟─73021015-4357-4196-868c-e9564de02ede
 # ╟─26684357-eba5-4a90-b54e-9ad7e64b05a3
 # ╟─a85268d5-40a6-4654-a4be-cba380e97d35
@@ -3796,9 +3828,11 @@ version = "1.9.2+0"
 # ╠═1492e4af-440d-4926-a4b5-b33da77dbee2
 # ╠═0ad398fb-9c7e-467d-a932-75db70cd2e86
 # ╠═d30799d5-6c82-4987-923e-b8beb2aac74a
-# ╠═7330040e-1988-4410-b625-74f71f031d43
 # ╠═bdac967d-82e0-4d87-82f7-c771896e1797
+# ╠═7330040e-1988-4410-b625-74f71f031d43
 # ╠═93adb0c3-5c11-479b-9436-8c7df34bd8fe
+# ╠═82a1e5e3-2ca0-40dc-ae15-d78bf1c54933
+# ╠═771c47e2-39bb-4588-8436-815ec67e11b2
 # ╠═f3fb26a5-46b5-4ba3-8a30-9a88d6868a24
 # ╟─3fd2ec1a-fed7-43a6-bc0b-ccadb1f711dd
 # ╠═f1547a42-ee3b-44dc-9147-d9c8ec56f1e3
@@ -3813,6 +3847,5 @@ version = "1.9.2+0"
 # ╠═6f820e58-b61e-43c0-95dc-6d0e936f71c3
 # ╠═b1bfd41e-3335-46ef-be5a-2aab2532060f
 # ╠═1d3d4e92-e21d-43f8-b7f4-5191d8d42821
-# ╠═cc51e4bd-896f-479c-8d09-0ce3f07e402c
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
