@@ -356,9 +356,11 @@ if run_benchmarks
 	scatter!(plt,num_dim_to_benchmark_banana,runtime_banana, label="Function")
 	scatter!(plt,num_dim_to_benchmark_banana,runtime_banana_grad, label="Gradient (forward-mode)")
 	scatter!(plt,num_dim_to_benchmark_banana,runtime_banana_grad_rev, label="Gradient (reverse-mode)")
-	xlabel!("Number of dimensions")
-	ylabel!("Runtime (s)")
-	title!("Cost of function and gradient")
+	xlabel!(plt,"Number of dimensions")
+	ylabel!(plt,"Runtime (s)")
+	title!(plt,"Cost of function and gradient")
+	savefig("ex1_banana_time_vs_dim.png")
+	plt
 end
 
 # ╔═╡ 0bd2b178-4db5-49bf-b653-6b90dd93f77a
@@ -479,6 +481,8 @@ if run_benchmarks
 	xlabel!(plt,"Number of dimensions")
 	ylabel!(plt,"Runtime (s)")
 	title!(plt,"Benchmarking Algorithms for Warped Gaussian target")
+	savefig("ex1h_time_vs_ndim.png")
+	plt
 end
 
 # ╔═╡ 1f122def-f9fb-41df-8292-c1b0c93cfb4d
@@ -503,7 +507,7 @@ display_msg_if_fail(check_type_isa(:response_1j,response_1j,Markdown.MD))
 md"# Helper Funtions"
 
 # ╔═╡ e78d0b7d-78d3-4ea7-b7d6-cc275c91ddb5
-ChooseDisplayMode()
+WidthOverDocs()
 
 # ╔═╡ 35ce6db0-1066-4321-9e06-be54378211fd
 TableOfContents(aside=true)
@@ -731,6 +735,8 @@ if run_benchmarks && ready_to_see_plt_vs_ndim
 	xlabel!("Number of dimensions")
 	ylabel!("Distance to true minimum")
 	title!(plt,"Accuracy of Algorithms for Gaussian target")
+	savefig("ex1f_accuracy_vs_ndim.png")
+	plt
 end
 
 # ╔═╡ 78797a3b-99c5-46ad-9bd7-486b18a0a19c
@@ -745,6 +751,8 @@ if run_benchmarks && ready_to_see_plt_vs_ndim
 	xlabel!(plt,"Number of dimensions")
 	ylabel!(plt,"Runtime (s)")
 	title!(plt,"Benchmarking Algorithms for Gaussian target")
+	savefig("ex1f_benchmark_vs_ndim.png")
+	plt
 end
 
 # ╔═╡ fb435357-b356-43c5-9fa9-ab4f3235f2ac
@@ -781,9 +789,11 @@ let
 	contour!(plt,plt_grid,plt_grid,plt_z', levels=40)
 #	scatter!(plt,[min_prewarp_banana_2d[1]],[true_min_prewarp_banana_2d[2]], color=:blue, ms=5)
 	scatter!(plt,[true_min_banana_2d[1]],[true_min_banana_2d[2]], color=:blue, ms=5, label="True minimum")
-	xlabel!(L"x_1")
-	ylabel!(L"x_2")
-	title!("Gaussian warped into a 2-D Banana")
+	xlabel!(plt,L"x_1")
+	ylabel!(plt,L"x_2")
+	title!(plt,"Gaussian warped into a 2-D Banana")
+	savefig("ex1_banana.png")
+	plt
 end
 
 # ╔═╡ 73d84cba-c5a5-40fd-bc99-15a00570d413
@@ -816,6 +826,8 @@ if run_benchmarks
 	xlabel!("Number of dimensions")
 	ylabel!("Distance to true minimum")
 	title!(plt,"Accuracy of Algorithms for Banana target")
+	savefig("ex1i_dist_vs_ndim.png")
+	plt
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001

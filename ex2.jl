@@ -462,7 +462,7 @@ md"""
 """
 
 # ╔═╡ 40923752-9215-45c9-a444-5a519b64df97
-ChooseDisplayMode()
+WidthOverDocs()
 
 # ╔═╡ dfe71f99-5977-46e5-957d-10a32ce8340e
 TableOfContents(aside=true)
@@ -598,7 +598,9 @@ if  @isdefined param_guess
 	plot!(plt,t_plt,rvs_plt) 
 	xlabel!(plt,"Time (d)")
 	ylabel!(plt,"RV (m/s)")
-	title!("RV Predictions using above guess for model parameters") 
+	title!(plt,"RV Predictions using above guess for model parameters") 
+	savefig("ex2c_guess_pred.png")
+	plt
 end
 
 # ╔═╡ bdac967d-82e0-4d87-82f7-c771896e1797
@@ -757,7 +759,11 @@ begin
 end
 
 # ╔═╡ 6fad4fd9-b99b-44a9-9c45-6e79ffd4a796
-traceplot(chains_rand_init,:P)
+let
+	plt = traceplot(chains_rand_init,:P)
+	savefig("ex2a_trace_P.png")
+	plt
+end
 
 # ╔═╡ 62c0c2ca-b43b-4c53-a297-08746fae3f6e
 describe(chains_rand_init)
@@ -772,7 +778,11 @@ md"**Summary statistics for chain $chain_id**"
 describe(chains_rand_init[:,:,chain_id])
 
 # ╔═╡ c81bb742-a911-4fba-9e85-dfb9a241b290
-density(chains_rand_init,:P)
+let
+	plt = density(chains_rand_init,:P)
+	savefig("ex2a_posterior_P.png")
+	plt
+end
 
 # ╔═╡ 7a664634-c6e3-464b-90a0-6b4cf5015e83
 if go_sample_posterior1 && (P_guess > 0)
@@ -799,7 +809,11 @@ if @isdefined chains_with_guess
 end
 
 # ╔═╡ 3b7580c9-e04e-4768-ac6f-ddb4462dedd8
-density(chains_with_guess)
+let
+	plt = density(chains_with_guess)
+	savefig("ex2c_posterior.png")
+	plt
+end
 
 # ╔═╡ 82a1e5e3-2ca0-40dc-ae15-d78bf1c54933
 typeof(rv_kepler_model_v1)
@@ -815,7 +829,7 @@ typeof(rv_kepler_model_v1)
 	C ~ Normal(0,1000.0)         # velocity offset
 	σ_j ~ prior_jitter           # magnitude of RV jitter
 	# TODO:  Set prior for a
-	
+
 	# Transformations to make sampling easier
 	M0 = M0_minus_ω + ω
 
@@ -861,7 +875,9 @@ end
 
 # ╔═╡ 8a4ae52b-9cc6-478f-b836-62e59694949e
 if @isdefined chains_posterior2
-	density(chains_posterior2)
+	local plt = density(chains_posterior2)
+	savefig("ex2f_posterior.png")
+	plt
 end
 
 # ╔═╡ 9987e752-164f-40df-98ed-073d715ad87b
@@ -870,7 +886,9 @@ if @isdefined chains_posterior2
 	local plt2 = density(chains_posterior2,:P)
 	title!(plt1,"p(P | data, model w/o acceleration)")
 	title!(plt2,"p(P | data, model w/ acceleration)")
-	plot(plt1, plt2, layout = @layout [a; b] )	
+	local plt = plot(plt1, plt2, layout = @layout [a; b] )	
+	savefig("ex2g_post_P.png")
+	plt
 end
 
 # ╔═╡ 2fb25751-a036-4156-9fbd-3aaf4e373b91
@@ -879,7 +897,9 @@ if @isdefined chains_posterior2
 	local plt2 = density(chains_posterior2,:K)
 	title!(plt1,"p(K | data, model w/o acceleration)")
 	title!(plt2,"p(K | data, model w/ acceleration)")
-	plot(plt1, plt2, layout = @layout [a; b] )	
+	local plt = plot(plt1, plt2, layout = @layout [a; b] )	
+	savefig("ex2g_post_K.png")
+	plt
 end
 
 # ╔═╡ 1dfb8d58-b9f3-47a3-a7b1-e8354e7db4e2
@@ -888,7 +908,9 @@ if @isdefined chains_posterior2
 	local plt2 = density(chains_posterior2,:e)
 	title!(plt1,"p(e | data, model w/o acceleration)")
 	title!(plt2,"p(e | data, model w/ acceleration)")
-	plot(plt1, plt2, layout = @layout [a; b] )	
+	local plt = plot(plt1, plt2, layout = @layout [a; b] )	
+	savefig("ex2g_post_e.png")
+	plt
 end
 
 # ╔═╡ 0f1bf89e-c195-4c5f-9cd9-a2982b2e7bf0
@@ -897,7 +919,9 @@ if @isdefined chains_posterior2
 	local plt2 = density(chains_posterior2,:ω)
 	title!(plt1,"p(ω | data, model w/o acceleration)")
 	title!(plt2,"p(ω | data, model w/ acceleration)")
-	plot(plt1, plt2, layout = @layout [a; b] )	
+	local plt = plot(plt1, plt2, layout = @layout [a; b] )	
+	savefig("ex2g_post_omega.png")
+	plt
 end
 
 # ╔═╡ 771c47e2-39bb-4588-8436-815ec67e11b2
@@ -920,6 +944,8 @@ if  @isdefined chains_rand_init
 	xlabel!(plt,"Time (d)")
 	ylabel!(plt,"RV (m/s)")
 	title!(plt,"Predicted RV curves for $n_draws random samples from\nMarkov chains initialized with draws from the prior")
+	savefig("ex2b_postpred.png")
+	plt
 end
 
 # ╔═╡ 6d2e7fd2-3cb8-4e10-ad7c-6d05eb974aa7
@@ -939,6 +965,8 @@ if  @isdefined chains_with_guess
 	xlabel!(plt,"Time (d)")
 	ylabel!(plt,"RV (m/s)")
 	title!(plt,"Predicted RV curves for $n_draws random samples from\nnew Markov chains")
+	savefig("ex2d_postpred.png")
+	plt
 
 end
 
@@ -959,7 +987,8 @@ if  @isdefined chains_posterior2
 	xlabel!(plt,"Time (d)")
 	ylabel!(plt,"RV (m/s)")
 	title!(plt,"Predicted RV curves for $n_draws random samples from\nMarkov chains for model with acceleration term")
-
+	savefig("ex2f_postpred_wacc.png")
+	plt
 end
 
 # ╔═╡ fe8f637d-3721-4a9f-9e6e-f6aee00b7f18
@@ -1005,6 +1034,8 @@ if  @isdefined chains_posterior2
 		xlabel!(plt,"Residuals (m/s)")
 		end
 	ylabel!(plt,"Density")
+	savefig("ex2f_histo_resid.png")
+	plt
 end
 
 # ╔═╡ 0bb0c056-cb48-4ed7-8305-24d2957b595a
@@ -1107,7 +1138,11 @@ begin
 end
 
 # ╔═╡ a5be518a-3c7c-424e-b100-ec8967f4ae27
-plot(periodogram_results.period_grid,periodogram_results.periodogram, xscale=:log10, xlabel="Putative Orbital Period (d)", ylabel="-χ²/2", legend=:none)
+let
+	plt = plot(periodogram_results.period_grid,periodogram_results.periodogram, xscale=:log10, xlabel="Putative Orbital Period (d)", ylabel="-χ²/2", legend=:none)
+	savefig("ex2_periodogram.png")
+	plt
+end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -3766,7 +3801,7 @@ version = "1.9.2+0"
 # ╟─b7766545-f1a9-4635-905a-fa3e798f12dc
 # ╟─6441c9cf-f0b1-4229-8b72-1b89e9f0c6f3
 # ╟─c9433de9-4f48-4bc6-846c-3d684ae6adee
-# ╠═3b7580c9-e04e-4768-ac6f-ddb4462dedd8
+# ╟─3b7580c9-e04e-4768-ac6f-ddb4462dedd8
 # ╟─7f8394ee-e6a2-4e4f-84b2-10a043b3da35
 # ╠═f2ff4d87-db0a-4418-a548-a9f3f04f93cd
 # ╟─42fe9282-6a37-45f5-a833-d2f6eb0518fe
@@ -3816,8 +3851,8 @@ version = "1.9.2+0"
 # ╠═5e5d4560-fa1e-48f6-abe4-3b1221d44609
 # ╟─dd40a3cf-76d3-4eb9-8027-274a065c762c
 # ╟─940f4f42-7bc3-48d4-b9f4-22f9b94c345d
-# ╠═40923752-9215-45c9-a444-5a519b64df97
-# ╠═dfe71f99-5977-46e5-957d-10a32ce8340e
+# ╟─40923752-9215-45c9-a444-5a519b64df97
+# ╟─dfe71f99-5977-46e5-957d-10a32ce8340e
 # ╠═6fd32120-4df1-4f2d-bb6f-c348a6999ad5
 # ╠═16802453-5fdf-4e1f-8e99-51d1fcaa248a
 # ╟─83485386-90fd-4b2d-bdad-070835d8fb44
